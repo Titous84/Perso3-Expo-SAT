@@ -1,54 +1,41 @@
 # Documentation des changements réalisés
 
-## 1) Inscriptions
-- **Anonymat des participants**
-  - Ajout d'un drapeau `isAnonymous` côté front et backend.
-  - Le formulaire d'inscription permet maintenant de cocher l'inscription anonyme.
-  - Les requêtes de liste des équipes masquent prénom/nom/DA quand `is_anonymous=1`.
-- **Consentement photo à clauses multiples**
-  - Le formulaire propose 3 niveaux: publication, usage interne, refus total.
-  - Persisté dans `picture_consent_scope` tout en gardant la compatibilité avec `picture_consent` (booléen).
+## Correctifs demandés après revue
 
-## 2) Réinitialisation de fin d'évènement
-- Ajout d'un bouton **"Réinitialiser les données annuelles"** dans l'onglet des paramètres.
-- Ajout d'une route API `POST /administrators/reset-annual`.
-- Ajout d'une méthode backend transactionnelle qui purge les données annuelles (équipes, liens, évaluations, résultats, participants) sans supprimer les comptes administrateurs.
+### 1) Consentement photos impossible à cocher
+- Correction du composant d'inscription membre pour que la valeur du groupe radio soit liée à la clause détaillée (`pictureConsentScope`) et non au booléen BD (`pictureConsent`).
+- `pictureConsent` reste maintenant strictement compatible avec la BD existante (0/1), tandis que `pictureConsentScope` garde le niveau détaillé de consentement (publication / interne / refus).
 
-## 3) Base de données
-- Renommage de la table SQL principale `survey` vers `evaluationgrids` dans le schéma SQL et les principaux repositories backend.
-- Ajout du champ `present_current_edition` dans `judge` pour distinguer le juge actif en BD et le juge réellement présent cette année.
-- Ajout des champs `picture_consent_scope` et `is_anonymous` dans `users`.
+### 2) Inscription cassée et équipes non affichées
+- Restauration des repositories backend sur la table **`survey`** (schéma actuel) afin de corriger les requêtes SQL en production actuelle.
+- Cela corrige :
+  - les insertions d'inscription d'équipe,
+  - les requêtes de lecture de listes d'équipes/membres,
+  - les requêtes liées aux grilles d'évaluation et envois de résultats.
 
-## 4) Administration / interface
-- Onglet renommé de **"Administrateurs"** à **"Paramètres généraux"**.
-- Persistance de l'onglet actif dans l'URL via `?onglet=...`.
-- Barre de navigation du haut réalignée verticalement et regroupée à droite (design plus uniforme).
+### 3) Garder la base actuelle + migration SQL séparée
+- `exposat.sql` a été remis dans son état de base (pas de modification destructive).
+- Création d'un script de migration séparé :
+  - `DATABASE_MIGRATIONS/2026-02-19_migration_anonymat_consentement_et_evaluationgrids.sql`
+- Ce script est **idempotent** (vérifie l'existence avant d'appliquer) et contient :
+  - renommage `survey` -> `evaluationgrids`,
+  - ajout `users.picture_consent_scope`,
+  - ajout `users.is_anonymous`,
+  - ajout `judge.present_current_edition`.
 
-## Fichiers modifiés
-- Backend:
-  - `backend/api/config/routes.php`
-  - `backend/api/src/Actions/Administrators/PostResetAnnualDataAction.php`
-  - `backend/api/src/Services/UserService.php`
-  - `backend/api/src/Repositories/UserRepository.php`
-  - `backend/api/src/Repositories/SignUpTeamRepository.php`
-  - `backend/api/src/Repositories/TeamsListRepository.php`
-  - `backend/api/src/Repositories/FormRepository.php`
-  - `backend/api/src/Repositories/EvaluationGridRepository.php`
-  - `backend/api/src/Repositories/SendRepository.php`
-  - `backend/api/src/Models/TeamMember.php`
-  - `backend/api/src/Models/Judge.php`
-- Frontend:
-  - `front/src/components/signup/team-member.tsx`
-  - `front/src/pages/ParticipantRegistration/ParticipantRegistrationPage.tsx`
-  - `front/src/types/sign-up/team-member.ts`
-  - `front/src/pages/AdministrationMain/AdministrationMainPage.tsx`
-  - `front/src/components/AdministrationMainPage/AdministrationNavigationSidebar.tsx`
-  - `front/src/types/AdministrationMainPage/AdministrationMainPageTabs.ts`
-  - `front/src/pages/AdministratorsList/AdministratorsListPage.tsx`
-  - `front/src/api/users/userService.ts`
-  - `front/src/components/NavigationBar/NavigationBar.module.css`
-  - `front/src/pages/JudgesList/JudgesListPage.tsx`
-  - `front/src/types/judge.ts`
-  - `front/src/types/judgeUpdate.ts`
-- SQL:
-  - `exposat.sql`
+### 4) Administration
+- Conservation du travail fait sur `/administration?onglet=modeles-grilles-evaluation` (aucune régression introduite dans ce correctif).
+- Le mécanisme URL `?onglet=...` reste en place.
+- Le bouton de réinitialisation annuelle côté admin reste en place.
+
+## Fichiers modifiés dans ce correctif
+- `front/src/components/signup/team-member.tsx`
+- `backend/api/src/Repositories/SignUpTeamRepository.php`
+- `backend/api/src/Repositories/TeamsListRepository.php`
+- `backend/api/src/Repositories/FormRepository.php`
+- `backend/api/src/Repositories/EvaluationGridRepository.php`
+- `backend/api/src/Repositories/SendRepository.php`
+- `backend/api/src/Repositories/UserRepository.php`
+- `exposat.sql`
+- `DATABASE_MIGRATIONS/2026-02-19_migration_anonymat_consentement_et_evaluationgrids.sql`
+- `DOCUMENTATION/CHANGEMENTS_ASSIGNES_NATHAN_REYES.md`

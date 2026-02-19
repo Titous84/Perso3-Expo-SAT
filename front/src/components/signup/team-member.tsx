@@ -108,11 +108,13 @@ export default class TeamMemberForm extends React.Component<TeamMemberFormProps>
                             <FormLabel id="demo-controlled-radio-buttons-group">{TEXTS.signup.pictureConsent.label}</FormLabel>
                             <RadioGroup
                                 name="controlled-radio-buttons-group"
-                                value={this.props.teamMember.pictureConsent}
+                                value={this.props.teamMember.pictureConsentScope ?? this.props.teamMember.pictureConsent}
                                 onChange={(event:any) => {
 
-                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsent", Number(event.target.value));
-                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsentScope", Number(event.target.value))
+                                    const consentScope = Number(event.target.value);
+                                    // @author Nathan Reyes - On garde pictureConsent en booléen compatible BD (0/1) et la clause détaillée séparément.
+                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsent", consentScope > 0 ? 1 : 0);
+                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsentScope", consentScope)
                                 }}
                             >
                                 <FormControlLabel value={2} control={<Radio />} label="Autorise la publication (site web, médias sociaux, affichage)" />

@@ -1037,6 +1037,7 @@ class UserRepository extends Repository
 	}
 
 
+	
 	/**
 	 * Cherche les usagers de l'équipe n'ayant pas leur courriel validé.
 	 * @author Maxime Demers Boucher
