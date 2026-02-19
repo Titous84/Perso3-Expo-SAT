@@ -4,25 +4,25 @@ import { ADMINISTRATION_MAIN_PAGE_TABS } from "../../types/AdministrationMainPag
 import IPage from "../../types/IPage";
 import React from "react";
 
-/**
- * Variables d'états du composant React: AdministrationMainPage.
- * @property {IPage} componentToDisplayInContentZone - Composant React à afficher dans la zône de contenu de l'onglet sélectionné.
- */
 interface AdministrationMainPageState {
     componentToDisplayInContentZone: React.ComponentType<any>;
+    selectedTabId: string;
 }
 
 /**
- * Page d'administration
+ * Page d'administration.
+ * @author Nathan Reyes
  */
 export default class AdministrationMainPage extends IPage<{}, AdministrationMainPageState> {
     constructor(props: {}) {
         super(props)
 
-        // Initialisation des variables d'états.
+        const tabIdFromUrl = new URLSearchParams(window.location.search).get("onglet") ?? ADMINISTRATION_MAIN_PAGE_TABS[0].id;
+        const selectedTab = ADMINISTRATION_MAIN_PAGE_TABS.find(tab => tab.id === tabIdFromUrl) ?? ADMINISTRATION_MAIN_PAGE_TABS[0];
+
         this.state = {
-            // L'onglet sélectionné par défaut est le premier de la liste.
-            componentToDisplayInContentZone: ADMINISTRATION_MAIN_PAGE_TABS[0].componentToDisplayInContentZone
+            componentToDisplayInContentZone: selectedTab.componentToDisplayInContentZone,
+            selectedTabId: selectedTab.id
         }
     }
 
@@ -30,17 +30,14 @@ export default class AdministrationMainPage extends IPage<{}, AdministrationMain
         return (
             <div data-testid="AdministrationMainPage">
                 <Stack direction="row">
-                    {/* Barre latérale de navigation */}
-                    {/* Passe une référence de cette méthode à l'enfant. Quand l'enfant appelle cette méthode, elle change la valeur de l'onglet sélectionné. */}
                     <AdministrationNavigationSidebar
+                        selectedTabId={this.state.selectedTabId}
                         onAdministrationSidebarTabSelected={this.onSidebarTabSelected}
                     />
 
                     <Divider orientation="vertical" flexItem />
 
-                    {/* Zône du contenu de l'onglet sélectionné */}
                     <Container>
-                        {/* Rendu dynamique du composant React */}
                         {React.createElement(this.state.componentToDisplayInContentZone)}
                     </Container>
                 </Stack>
@@ -48,15 +45,18 @@ export default class AdministrationMainPage extends IPage<{}, AdministrationMain
         )
     }
 
-    /**
-     * Quand un onglet est sélectionné, on change le contenu selon l'onglet sélectionné.
-     * @param {string} newTabId - Identifiant de l'onglet qui vient d'être sélectionné.
-     */
     onSidebarTabSelected = (newTabId: string) => {
-        // Change la variable d'état du composant React affiché dans la zône de contenu.
-        // On recherche l'onglet sélectionné dans la liste des onglets et dans cet onglet, il y a le composant React à afficher dans la zône de contenu.
+        const selectedTab = ADMINISTRATION_MAIN_PAGE_TABS.find(tab => tab.id === newTabId);
+        if (!selectedTab) return;
+
+        // @author Nathan Reyes - Synchroniser l'onglet actif dans l'URL pour la navigation retour/avant.
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set("onglet", newTabId);
+        window.history.pushState({}, "", currentUrl.toString());
+
         this.setState({
-            componentToDisplayInContentZone: ADMINISTRATION_MAIN_PAGE_TABS.find(tab => tab.id === newTabId)!.componentToDisplayInContentZone
+            componentToDisplayInContentZone: selectedTab.componentToDisplayInContentZone,
+            selectedTabId: selectedTab.id
         });
     };
 }

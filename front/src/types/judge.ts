@@ -44,4 +44,9 @@
       * Activé
       */
      activated:boolean;
+     /**
+      * Présence réelle cette année
+      * @author Nathan Reyes
+      */
+     presentCurrentEdition?:boolean;
 }

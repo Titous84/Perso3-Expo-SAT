@@ -36,6 +36,18 @@ class TeamMember
     public $pictureConsent;
 
     /**
+     * @var int Clause détaillée de consentement photo
+     * @author Nathan Reyes
+     */
+    public $pictureConsentScope;
+
+    /**
+     * @var int Masquage des données personnelles
+     * @author Nathan Reyes
+     */
+    public $isAnonymous;
+
+    /**
      * @var int Activé
      */
     public $userActivated;
@@ -71,6 +83,9 @@ class TeamMember
         $this->firstName = $teamJSON["first_name"];
         $this->lastName = $teamJSON["last_name"];
         $this->pictureConsent = $teamJSON["picture_consent"];
+        // @author Nathan Reyes - Valeurs additionnelles pour gérer anonymat et consentement granulaire.
+        $this->pictureConsentScope = $teamJSON["picture_consent_scope"] ?? $this->pictureConsent;
+        $this->isAnonymous = $teamJSON["is_anonymous"] ?? 0;
         $this->userActivated = isset($teamJSON["users_activated"]) ? $teamJSON["users_activated"] : 1;
         $this->teamId = isset($teamJSON["team_id"]) ? $teamJSON["team_id"] : null;
         $this->email = isset($teamJSON["email"]) ? $teamJSON["email"] : null;
