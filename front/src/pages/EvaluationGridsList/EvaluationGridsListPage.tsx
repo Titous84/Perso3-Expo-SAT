@@ -1,11 +1,20 @@
-import { Link } from "react-router-dom";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Link } from 'react-router-dom';
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import ButtonExposat from '../../components/button/button-exposat';
-import Layout from '../../components/layout/layout';
-import { IEvaluationGrid } from "../../types/evaluationGrid/IEvaluationGrid";
-import IPage from "../../types/IPage";
-import EvaluationGridService from "../../api/evaluationGrid/evaluationGridService";
-import { ShowToast } from "../../utils/utils";
+import { IEvaluationGrid } from '../../types/evaluationGrid/IEvaluationGrid';
+import IPage from '../../types/IPage';
+import EvaluationGridService from '../../api/evaluationGrid/evaluationGridService';
+import { ShowToast } from '../../utils/utils';
 import { TEXTS } from '../../lang/fr';
 import styles from './EvaluationGridsListPage.module.css';
 
@@ -14,7 +23,7 @@ import styles from './EvaluationGridsListPage.module.css';
  * @property {IEvaluationGrid[]} evaluationGrids - La liste des modèles de questionnaire.
  */
 interface EvaluationGridsListPageState {
-    evaluationGrids: IEvaluationGrid[];
+  evaluationGrids: IEvaluationGrid[];
 }
 
 /**
@@ -22,83 +31,118 @@ interface EvaluationGridsListPageState {
  * @author Raphaël Boisvert
  * @author Thomas-Gabriel Paquin
  */
-export default class EvaluationGridsListPage extends IPage<{}, EvaluationGridsListPageState> {
-    constructor(props: {}) {
-        super(props)
+export default class EvaluationGridsListPage extends IPage<
+  {},
+  EvaluationGridsListPageState
+> {
+  constructor(props: {}) {
+    super(props);
 
-        // Variables d'état
-        this.state = {
-            evaluationGrids: [],
-        }
+    // Variables d'état
+    this.state = {
+      evaluationGrids: [],
+    };
 
-        // Sert à lier le contexte de la classe aux méthodes.
-        this.getEvaluationGrid = this.getEvaluationGrid.bind(this),
-        this.deleteEvaluationGrid = this.deleteEvaluationGrid.bind(this)
+    // Sert à lier le contexte de la classe aux méthodes.
+    ((this.getEvaluationGrid = this.getEvaluationGrid.bind(this)),
+      (this.deleteEvaluationGrid = this.deleteEvaluationGrid.bind(this)));
+  }
+
+  componentDidMount() {
+    this.getEvaluationGrid();
+  }
+
+  /**
+   * Récupère les modèles de questionnaire
+   */
+  async getEvaluationGrid() {
+    const response = await EvaluationGridService.getEvaluationGrid();
+    if (response && response.data) {
+      this.setState({
+        evaluationGrids: response.data,
+      });
     }
+  }
 
-    componentDidMount() {
+  /**
+   * Supprime un modèle de questionnaire
+   * @param id L'id du modèle de questionnaire
+   */
+  deleteEvaluationGrid(id: number) {
+    EvaluationGridService.deleteEvaluationGrid(id)
+      .then(() => {
         this.getEvaluationGrid();
-    }
+        ShowToast(
+          'Formulaire supprimé avec succès',
+          5000,
+          'success',
+          'top-center',
+          false,
+        );
+      })
+      .catch(() => {
+        ShowToast(
+          'Erreur lors de la suppression du formulaire',
+          5000,
+          'error',
+          'top-center',
+          false,
+        );
+      });
+  }
 
-    /**
-     * Récupère les modèles de questionnaire
-     */
-    async getEvaluationGrid() {
-        const response = await EvaluationGridService.getEvaluationGrid();
-        if (response && response.data) {
-            this.setState({
-                evaluationGrids: response.data,
-            });
-        }
-    }
+  render() {
+    return (
+      <Box sx={{ mt: 4 }}>
+        {/* @author Nathan Reyes - Entête harmonisé sans l'ancien composant Layout */}
+        <Typography variant="h4" sx={{ mb: 2 }}>
+          {TEXTS.evaluationGrid.title}
+        </Typography>
+        <Link to={`/gestion-grille-evaluation/formulaire/`}>
+          <ButtonExposat
+            className={styles.buttonCreate}
+            children={TEXTS.evaluationGrid.buttonCreate}
+          />
+        </Link>
 
-    /**
-     * Supprime un modèle de questionnaire
-     * @param id L'id du modèle de questionnaire
-     */
-    deleteEvaluationGrid(id: number) {
-        EvaluationGridService.deleteEvaluationGrid(id).then(() => {
-            this.getEvaluationGrid();
-            ShowToast("Formulaire supprimé avec succès", 5000, "success", "top-center", false);
-        }).catch(() => {
-            ShowToast("Erreur lors de la suppression du formulaire", 5000, "error", "top-center", false);
-        });
-    }
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nom du modèle</TableCell>
+                <TableCell align="right"></TableCell>
+              </TableRow>
+            </TableHead>
 
-    render() {
-        return (
-            <Layout name={TEXTS.evaluationGrid.title}>
-                <Link to={`/gestion-grille-evaluation/formulaire/`}>
-                    <ButtonExposat className={styles.buttonCreate} children={TEXTS.evaluationGrid.buttonCreate} />
-                </Link>
-
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Nom du modèle</TableCell>
-                                <TableCell align="right"></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        
-                        <TableBody>
-                            {this.state.evaluationGrids.map((evaluationGrid) => {
-                                return (
-                                    <TableRow key={evaluationGrid.id}>
-                                        <TableCell>{evaluationGrid.name}</TableCell>
-                                        <TableCell align="right">
-                                            <Link to={`/gestion-grille-evaluation/formulaire/${evaluationGrid.id}`}>
-                                                <ButtonExposat className={styles.buttonEdit} children={TEXTS.evaluationGrid.buttonEdit} />
-                                            </Link>
-                                            <ButtonExposat className={styles.buttonDelete} onClick={() => this.deleteEvaluationGrid(evaluationGrid.id)} children={TEXTS.evaluationGrid.buttonDelete} />
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Layout>
-        )
-    }
+            <TableBody>
+              {this.state.evaluationGrids.map((evaluationGrid) => {
+                return (
+                  <TableRow key={evaluationGrid.id}>
+                    <TableCell>{evaluationGrid.name}</TableCell>
+                    <TableCell align="right">
+                      <Link
+                        to={`/gestion-grille-evaluation/formulaire/${evaluationGrid.id}`}
+                      >
+                        <ButtonExposat
+                          className={styles.buttonEdit}
+                          children={TEXTS.evaluationGrid.buttonEdit}
+                        />
+                      </Link>
+                      <ButtonExposat
+                        className={styles.buttonDelete}
+                        onClick={() =>
+                          this.deleteEvaluationGrid(evaluationGrid.id)
+                        }
+                        children={TEXTS.evaluationGrid.buttonDelete}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    );
+  }
 }
