@@ -42,3 +42,7 @@
 
 ### 5) Équipes vides dans l'onglet de gestion
 - Correction des requêtes de liste d'équipes/membres en passant la jointure `survey` en `LEFT JOIN` pour éviter d'exclure toutes les équipes lorsque `survey_id` est nul/incohérent temporairement.
+
+### 6) Lien explicite avec la page « Gestion des équipes »
+- Les requêtes utilisées par les endpoints consommés par `TeamsListService.tryGetTeamsMembers()` et `TeamsListService.tryGetTeamsMembersConcats()` ont été rendues tolérantes aux liens manquants (`users_teams`, `teams_contact_person`, `survey`) afin que la page « Gestion des équipes » affiche les équipes créées.
+- Concrètement, la récupération part maintenant de `teams` puis joint le reste en `LEFT JOIN` pour éviter qu'une donnée absente masque tout le résultat.
