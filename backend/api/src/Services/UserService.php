@@ -325,6 +325,19 @@ class UserService
         return true; // Aucun id n'est valide, donc ils sont TOUS invalides.
     }
 
+
+    /**
+     * Réinitialise les données annuelles de l'évènement.
+     * @author Nathan Reyes
+     */
+    public function reset_annual_data(): Result
+    {
+        if (!$this->userRepository->reset_annual_data()) {
+            return new Result(EnumHttpCode::BAD_REQUEST, array("La réinitialisation annuelle a échoué."));
+        }
+        return new Result(EnumHttpCode::SUCCESS, array("Les données annuelles ont été réinitialisées avec succès."));
+    }
+
 	/**
 	 * Fonction permettant d'obtenir les utilisateurs activés.
 	 * @author Alex Des Ruisseaux

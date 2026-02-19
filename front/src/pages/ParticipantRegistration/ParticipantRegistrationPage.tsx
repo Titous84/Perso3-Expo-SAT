@@ -103,8 +103,8 @@ export default class ParticipantRegistrationPage extends IPage<{}, ParticipantRe
                     {email:"", fullName:""}
                 ],
                 members:[
-                    {numero_da:"",firstName:"",lastName:"",pictureConsent:0},
-                    {numero_da:"",firstName:"",lastName:"",pictureConsent:0}
+                    {numero_da:"",firstName:"",lastName:"",pictureConsent:0,pictureConsentScope:0,isAnonymous:false},
+                    {numero_da:"",firstName:"",lastName:"",pictureConsent:0,pictureConsentScope:0,isAnonymous:false}
                 ]
             },
             categories:[],
@@ -140,7 +140,7 @@ export default class ParticipantRegistrationPage extends IPage<{}, ParticipantRe
 
         //Crée le bon object en fonction du type demandé
         if (type === "contactPerson") array.push({numero_da:"",fullName:""})
-        else array.push({numero_da:"",firstName:"",lastName:"",pictureConsent:0})
+        else array.push({numero_da:"",firstName:"",lastName:"",pictureConsent:0,pictureConsentScope:0,isAnonymous:false})
 
         oldState[type] = array;
 
