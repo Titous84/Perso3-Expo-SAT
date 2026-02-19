@@ -874,6 +874,33 @@ class UserRepository extends Repository
 			return -1;
 		}
 	}
+
+	/**
+	 * Réinitialise les données annuelles sans supprimer les comptes administrateurs.
+	 * @author Nathan Reyes
+	 */
+	public function reset_annual_data(): bool
+	{
+		try {
+			$this->db->beginTransaction();
+			$this->db->exec("DELETE FROM results");
+			$this->db->exec("DELETE FROM evaluation");
+			$this->db->exec("DELETE FROM users_teams");
+			$this->db->exec("DELETE FROM teams_contact_person");
+			$this->db->exec("DELETE FROM contact_person");
+			$this->db->exec("DELETE FROM teams");
+			$this->db->exec("UPDATE users SET activation_token = NULL WHERE role_id = 3");
+			$this->db->exec("DELETE FROM users WHERE role_id = 3");
+			$this->db->commit();
+			return true;
+		} catch (PDOException $e) {
+			$this->db->rollBack();
+			$context["http_error_code"] = $e->getCode();
+			$this->logHandler->critical($e->getMessage(), $context);
+			return false;
+		}
+	}
+
 	/**
 	 * Cherche les usagers de l'équipe n'ayant pas leur courriel validé.
 	 * @author Mathieu Sévégny
@@ -1008,6 +1035,8 @@ class UserRepository extends Repository
 		return $req->fetchAll();
 	}
 
+
+	
 	/**
 	 * Cherche les usagers de l'équipe n'ayant pas leur courriel validé.
 	 * @author Maxime Demers Boucher

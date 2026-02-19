@@ -5,7 +5,7 @@ import React from 'react';
 import { ValidatorForm } from 'react-material-ui-form-validator'
 import TeamMember from '../../types/sign-up/team-member';
 import { MAX_LENGTH_FIRST_NAME, MAX_LENGTH_LAST_NAME } from '../../utils/constants';
-import { FormControl,FormControlLabel,FormLabel, Grid, Paper, Radio, RadioGroup } from '@mui/material';
+import { Checkbox, FormControl,FormControlLabel,FormLabel, Grid, Paper, Radio, RadioGroup } from '@mui/material';
 import styles from "./../../pages/ParticipantRegistration/ParticipantRegistrationPage.module.css";
 import { TextValidator } from 'react-material-ui-form-validator'
 import { INPUT_VARIANT } from '../../utils/muiConstants';
@@ -108,16 +108,32 @@ export default class TeamMemberForm extends React.Component<TeamMemberFormProps>
                             <FormLabel id="demo-controlled-radio-buttons-group">{TEXTS.signup.pictureConsent.label}</FormLabel>
                             <RadioGroup
                                 name="controlled-radio-buttons-group"
-                                value={this.props.teamMember.pictureConsent}
+                                value={this.props.teamMember.pictureConsentScope ?? this.props.teamMember.pictureConsent}
                                 onChange={(event:any) => {
 
-                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsent", event.target.value)
+                                    const consentScope = Number(event.target.value);
+                                    // @author Nathan Reyes - On garde pictureConsent en booléen compatible BD (0/1) et la clause détaillée séparément.
+                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsent", consentScope > 0 ? 1 : 0);
+                                    this.props.handleChangeTeamMember(this.props.number,"pictureConsentScope", consentScope)
                                 }}
                             >
-                                <FormControlLabel value={1} control={<Radio />} label={TEXTS.signup.pictureConsent.yes} />
-                                <FormControlLabel value={0} control={<Radio />} label={TEXTS.signup.pictureConsent.no} />
+                                <FormControlLabel value={2} control={<Radio />} label="Autorise la publication (site web, médias sociaux, affichage)" />
+                                <FormControlLabel value={1} control={<Radio />} label="Autorise uniquement un usage interne (organisation / archives)" />
+                                <FormControlLabel value={0} control={<Radio />} label="Refus total de prise et d'utilisation de photos" />
                             </RadioGroup>
                             </FormControl>
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+                            {/* @author Nathan Reyes - Option d'inscription anonyme pour masquer les données sensibles. */}
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={this.props.teamMember.isAnonymous}
+                                        onChange={(event: any) => this.props.handleChangeTeamMember(this.props.number, "isAnonymous", event.target.checked)}
+                                    />
+                                }
+                                label="Inscription anonyme : masquer prénom, nom et DA dans les listes administratives"
+                            />
                         </Grid>
                     </Grid>
                 </Paper>

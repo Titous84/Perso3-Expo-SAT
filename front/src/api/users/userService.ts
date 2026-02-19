@@ -131,6 +131,17 @@ export default class UserService {
         }
     }
 
+
+    /**
+     * Lance une réinitialisation des données annuelles de l'événement.
+     * @author Nathan Reyes
+     */
+    public static async resetAnnualData() : Promise<void> {
+        const response: APIResult<void> = await APIRequest("administrators/reset-annual", "POST", true);
+        if (response.error) {
+            throw new Error(response.error);
+        }
+    }
     /**
      * @author Thomas-gabriel Paquin
      * Permet de recevoir les informations des juges.

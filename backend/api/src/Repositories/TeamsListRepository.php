@@ -40,15 +40,15 @@ class TeamsListRepository extends Repository
                 users.picture_consent,
                 GROUP_CONCAT(DISTINCT contact_person.name SEPARATOR ', ') as contact_person_name, 
                 GROUP_CONCAT(DISTINCT contact_person.email SEPARATOR ', ') as contact_person_email
-            FROM users 
-            INNER JOIN users_teams ON users.id = users_teams.users_id 
-            INNER JOIN teams ON teams.id = users_teams.teams_id 
-            INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN survey ON teams.survey_id = survey.id
-            INNER JOIN role ON users.role_id = role.id
-            INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
-            INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
-            WHERE role.name = :role_name
+            FROM teams
+            INNER JOIN categories ON teams.categories_id = categories.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: partir des équipes pour éviter qu'une relation manquante masque tout l'onglet.
+            LEFT JOIN users_teams ON users_teams.teams_id = teams.id
+            LEFT JOIN users ON users.id = users_teams.users_id
+            LEFT JOIN role ON role.id = users.role_id
+            LEFT JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
+            LEFT JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
+            WHERE (role.name = :role_name OR users.id IS NULL)
             GROUP BY users.id, teams.id";
 
             $req = $this->db->prepare($sql);
@@ -83,15 +83,15 @@ class TeamsListRepository extends Repository
         try {
             $sql = "SELECT teams.id as team_id, teams.team_number, teams.name as title, teams.description, categories.name as category, teams.years as year, survey.name as survey, teams.activated as teams_activated, 
             GROUP_CONCAT(DISTINCT CONCAT(users.first_name,' ',users.last_name) SEPARATOR ', ') as members, GROUP_CONCAT(DISTINCT contact_person.name SEPARATOR ', ') as contact_person_name, GROUP_CONCAT(DISTINCT contact_person.email SEPARATOR ', ') as contact_person_email
-            FROM users 
-            INNER JOIN users_teams ON users.id = users_teams.users_id 
-            INNER JOIN teams ON teams.id = users_teams.teams_id 
-            INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN survey ON teams.survey_id = survey.id
-            INNER JOIN role ON users.role_id = role.id
-            INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
-            INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
-            WHERE role.name = :role_name
+            FROM teams
+            INNER JOIN categories ON teams.categories_id = categories.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: partir des équipes pour éviter qu'une relation manquante masque tout l'onglet.
+            LEFT JOIN users_teams ON users_teams.teams_id = teams.id
+            LEFT JOIN users ON users.id = users_teams.users_id
+            LEFT JOIN role ON role.id = users.role_id
+            LEFT JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
+            LEFT JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
+            WHERE (role.name = :role_name OR users.id IS NULL)
             GROUP BY teams.id
             ORDER BY teams.id;";
 
@@ -127,13 +127,13 @@ class TeamsListRepository extends Repository
         try {
             $sql = "SELECT users.id, teams.id as team_id, teams.team_number, teams.name as title, teams.description, categories.name as category, teams.years as year, survey.name as survey, survey.id as survey_id, teams.activated as teams_activated, 
             users.first_name, users.last_name, users.numero_da, users.email, users.picture_consent, users.activated as users_activated, users.blacklisted, contact_person.name as contact_name, contact_person.email as contact_email, contact_person.id as contact_id
-            FROM users 
-            INNER JOIN users_teams ON users.id = users_teams.users_id 
-            INNER JOIN teams ON teams.id = users_teams.teams_id 
-            INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN survey ON teams.survey_id = survey.id
-            INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
-            INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
+            FROM teams
+            INNER JOIN categories ON teams.categories_id = categories.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: partir des équipes pour éviter qu'une relation manquante masque tout l'onglet.
+            LEFT JOIN users_teams ON users_teams.teams_id = teams.id
+            LEFT JOIN users ON users.id = users_teams.users_id
+            LEFT JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
+            LEFT JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
             WHERE teams.id = :id
             ORDER BY teams.id;";
 

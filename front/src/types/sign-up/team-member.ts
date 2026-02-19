@@ -19,4 +19,14 @@ export default interface TeamMember{
      * Consentement d'être pris en photo
      */
     pictureConsent:number;
+    /**
+     * Clause de consentement photo: 0=refus,1=interne,2=publication.
+     * @author Nathan Reyes
+     */
+    pictureConsentScope:number;
+    /**
+     * Masquer les renseignements personnels du participant dans les affichages administratifs.
+     * @author Nathan Reyes
+     */
+    isAnonymous:boolean;
 }
