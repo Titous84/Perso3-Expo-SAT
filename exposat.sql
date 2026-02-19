@@ -308,19 +308,19 @@ CREATE TABLE `site_component` (
 -- --------------------------------------------------------
 
 --
--- Structure de la table `survey`
+-- Structure de la table `evaluationgrids`
 --
 
-CREATE TABLE `survey` (
+CREATE TABLE `evaluationgrids` (
   `id` int NOT NULL,
   `name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 --
--- Déchargement des données de la table `survey`
+-- Déchargement des données de la table `evaluationgrids`
 --
 
-INSERT INTO `survey` (`id`, `name`) VALUES
+INSERT INTO `evaluationgrids` (`id`, `name`) VALUES
 (1, 'GrillePourTous');
 
 -- --------------------------------------------------------
@@ -408,6 +408,8 @@ CREATE TABLE `users` (
   `numero_da` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `picture` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `picture_consent` tinyint(1) NOT NULL DEFAULT '0',
+  `picture_consent_scope` tinyint NOT NULL DEFAULT '0',
+  `is_anonymous` tinyint(1) NOT NULL DEFAULT '0',
   `reset_token` int DEFAULT NULL,
   `activation_token` varchar(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `activated` tinyint(1) NOT NULL DEFAULT '1',
@@ -563,9 +565,9 @@ ALTER TABLE `site_component`
   ADD KEY `type_component` (`type_id`);
 
 --
--- Index pour la table `survey`
+-- Index pour la table `evaluationgrids`
 --
-ALTER TABLE `survey`
+ALTER TABLE `evaluationgrids`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -695,9 +697,9 @@ ALTER TABLE `site_component`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
--- AUTO_INCREMENT pour la table `survey`
+-- AUTO_INCREMENT pour la table `evaluationgrids`
 --
-ALTER TABLE `survey`
+ALTER TABLE `evaluationgrids`
   MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --

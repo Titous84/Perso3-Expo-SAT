@@ -59,6 +59,11 @@ class Judge
 	 * @var int|null Statut de bannissement du juge.
 	 */
 	public $blacklisted;
+	/**
+	 * Présent à l'édition en cours
+	 * @author Nathan Reyes
+	 */
+	public $presentCurrentEdition;
 
 	/**
 	 * @var int|null Rôle du juge.
@@ -86,6 +91,7 @@ class Judge
 		$this->pictureConsent = $judgeJSON["pictureConsent"];
 		$this->activated = $judgeJSON["activated"] ?? false;
 		$this->blacklisted = $judgeJSON["blacklisted"] ?? false;
+		$this->presentCurrentEdition = $judgeJSON["presentCurrentEdition"] ?? true;
 		$this->role_id = $judgeJSON["role_id"] ?? null;
 		$this->category = $judgeJSON["category"] ?? null;
 	}
