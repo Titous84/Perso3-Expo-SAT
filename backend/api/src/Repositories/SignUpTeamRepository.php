@@ -91,7 +91,7 @@ class SignUpTeamRepository extends Repository
                 $verifcationMember = $this->get_member_by_numero_da($team->members[$a]["numero_da"]);
                 if(sizeOf($verifcationMember) == 0){ //
                     //Insertion d'un membre dans la bd
-                    $sql = "INSERT INTO users (first_name, last_name, numero_da, role_id, picture_consent, activated, activation_token) VALUES (:first_name, :last_name, :numero_da, :role_id, :picture_consent, 0, :activation_token)";
+                    $sql = "INSERT INTO users (first_name, last_name, numero_da, role_id, picture_consent, picture_consent_scope, is_anonymous, activated, activation_token) VALUES (:first_name, :last_name, :numero_da, :role_id, :picture_consent, :picture_consent_scope, :is_anonymous, 0, :activation_token)";
     
                     $req = $this->db->prepare($sql);
                     $req->execute(array(
@@ -99,7 +99,10 @@ class SignUpTeamRepository extends Repository
                         "last_name" => $this->uppercase_first_letter($team->members[$a]['lastName']),
                         "numero_da" => $team->members[$a]['numero_da'],
                         "role_id" => 3,
-                        "picture_consent" => $team->members[$a]['pictureConsent'],
+                        "picture_consent" => $team->members[$a]['pictureConsent'] > 0 ? 1 : 0,
+                        // @author Nathan Reyes - On persiste la clause de consentement complète et le mode anonyme.
+                        "picture_consent_scope" => $team->members[$a]['pictureConsentScope'] ?? $team->members[$a]['pictureConsent'],
+                        "is_anonymous" => !empty($team->members[$a]['isAnonymous']) ? 1 : 0,
                         "activation_token" => $token[$a]
                     ));
                 }

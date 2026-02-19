@@ -29,7 +29,7 @@ class TeamsListRepository extends Repository
                 teams.description,
                 categories.name as category,
                 teams.years as year,
-                survey.name as survey,
+                evaluationgrids.name as survey,
                 teams.activated as teams_activated, 
                 users.first_name, 
                 users.last_name,
@@ -37,7 +37,7 @@ class TeamsListRepository extends Repository
                 users.email, 
                 users.activated as users_activated,
                 users.blacklisted, 
-                users.picture_consent,
+                users.picture_consent, users.picture_consent_scope, users.is_anonymous,
                 GROUP_CONCAT(DISTINCT contact_person.name SEPARATOR ', ') as contact_person_name, 
                 GROUP_CONCAT(DISTINCT contact_person.email SEPARATOR ', ') as contact_person_email
             FROM teams
@@ -164,7 +164,7 @@ class TeamsListRepository extends Repository
     public function get_survey_by_name(string $survey): array
     {
         try {
-            $sql = "SELECT id, name FROM survey WHERE name = '$survey'";
+            $sql = "SELECT id, name FROM evaluationgrids WHERE name = '$survey'";
 
             $req = $this->db->query($sql);
 
@@ -249,8 +249,8 @@ class TeamsListRepository extends Repository
 
             // Insertion dans la table `users`
             $sqlUser = "
-                INSERT INTO users (first_name, last_name, numero_da, picture_consent, activated, role_id)
-                VALUES (:first_name, :last_name, :numero_da, :picture_consent, :activated, :role_id)
+                INSERT INTO users (first_name, last_name, numero_da, picture_consent, picture_consent_scope, is_anonymous, activated, role_id)
+                VALUES (:first_name, :last_name, :numero_da, :picture_consent, :picture_consent_scope, :is_anonymous, :activated, :role_id)
             ";
 
             $reqUser = $this->db->prepare($sqlUser);
@@ -258,7 +258,9 @@ class TeamsListRepository extends Repository
                 "first_name" => $teamMember->firstName,
                 "last_name" => $teamMember->lastName,
                 "numero_da" => $teamMember->numeroDa,
-                "picture_consent" => $teamMember->pictureConsent,
+                "picture_consent" => $teamMember->pictureConsent > 0 ? 1 : 0,
+                "picture_consent_scope" => $teamMember->pictureConsentScope ?? $teamMember->pictureConsent,
+                "is_anonymous" => !empty($teamMember->isAnonymous) ? 1 : 0,
                 "activated" => $teamMember->userActivated,
                 "role_id" => 3,
             ]);
@@ -374,6 +376,8 @@ class TeamsListRepository extends Repository
                 numero_da = :numero_da,
                 blacklisted = :blacklisted,
                 picture_consent = :picture_consent,
+                picture_consent_scope = :picture_consent_scope,
+                is_anonymous = :is_anonymous,
                 activated = :activated
             WHERE id = :id";
     
@@ -385,7 +389,9 @@ class TeamsListRepository extends Repository
                 "last_name" => $teamMember->lastName,
                 "numero_da" => $teamMember->numeroDa,
                 "blacklisted" => $teamMember->blacklisted,
-                "picture_consent" => $teamMember->pictureConsent,
+                "picture_consent" => $teamMember->pictureConsent > 0 ? 1 : 0,
+                "picture_consent_scope" => $teamMember->pictureConsentScope ?? $teamMember->pictureConsent,
+                "is_anonymous" => !empty($teamMember->isAnonymous) ? 1 : 0,
                 "activated" => $teamMember->userActivated
             ]);
     
