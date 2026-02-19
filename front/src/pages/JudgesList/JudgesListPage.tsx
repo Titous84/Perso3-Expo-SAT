@@ -119,6 +119,7 @@ export default function JudgesListPage() {
             email: displayData.email,
             activated: displayData.activated,
             blacklisted: displayData.blacklisted,
+            presentCurrentEdition: displayData.presentCurrentEdition,
         };
         await patchJudge(judge);
     };
@@ -328,6 +329,36 @@ export default function JudgesListPage() {
                             activated: params.row.activated ? 1 : 0,
                         });
                         setSnackbarMessage(`L'état "Activé" a été modifié.`);
+                        setSnackbarMessageType("success");
+                        setIsSnackbarOpen(true);
+                    }}
+                />
+            ),
+            valueFormatter: (params) => (params ? "Oui" : "Non"),
+        },
+
+        {
+            field: "presentCurrentEdition",
+            headerName: "Présent cette année",
+            width: 170,
+            editable: true,
+            renderEditCell: (params) => (
+                <Checkbox
+                    checked={params.value}
+                    onChange={(event) => {
+                        params.api.setEditCellValue({
+                            id: params.id,
+                            field: "presentCurrentEdition",
+                            value: event.target.checked,
+                        });
+                    }}
+                    onBlur={() => {
+                        // @author Nathan Reyes - Distinction entre compte juge actif et participation réelle à l'édition en cours.
+                        editJudge(params.row.id, {
+                            ...params.row,
+                            presentCurrentEdition: params.row.presentCurrentEdition ? 1 : 0,
+                        });
+                        setSnackbarMessage(`L'état "Présent cette année" a été modifié.`);
                         setSnackbarMessageType("success");
                         setIsSnackbarOpen(true);
                     }}
