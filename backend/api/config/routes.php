@@ -23,6 +23,7 @@ use App\Actions\Users\ChangePasswordAction;
 // Administrateurs
 use App\Actions\Administrators\GetAllAdministratorsAction;
 use App\Actions\Administrators\DeleteAdministratorsByIdsAction;
+use App\Actions\Administrators\PostResetAnnualDataAction;
 use App\Actions\Administrators\PostAdministratorAction;
 
 // ?
@@ -176,6 +177,9 @@ $app->group('/api', function (RouteCollectorProxy $group) {
 
         // Permet de supprimer une liste d'administrateurs par leurs ids.
         $administratorsGroup->delete("", DeleteAdministratorsByIdsAction::class);
+
+        // Réinitialisation de fin d'évènement.
+        $administratorsGroup->post("/reset-annual", PostResetAnnualDataAction::class);
     });
 
 
