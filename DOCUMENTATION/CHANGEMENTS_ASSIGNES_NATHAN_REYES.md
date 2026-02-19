@@ -39,3 +39,6 @@
 - `exposat.sql`
 - `DATABASE_MIGRATIONS/2026-02-19_migration_anonymat_consentement_et_evaluationgrids.sql`
 - `DOCUMENTATION/CHANGEMENTS_ASSIGNES_NATHAN_REYES.md`
+
+### 5) Équipes vides dans l'onglet de gestion
+- Correction des requêtes de liste d'équipes/membres en passant la jointure `survey` en `LEFT JOIN` pour éviter d'exclure toutes les équipes lorsque `survey_id` est nul/incohérent temporairement.

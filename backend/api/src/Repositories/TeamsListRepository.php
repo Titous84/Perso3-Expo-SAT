@@ -44,7 +44,7 @@ class TeamsListRepository extends Repository
             INNER JOIN users_teams ON users.id = users_teams.users_id 
             INNER JOIN teams ON teams.id = users_teams.teams_id 
             INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN evaluationgrids AS survey ON teams.survey_id = survey.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: garder les équipes visibles même si survey_id est NULL ou temporairement incohérent
             INNER JOIN role ON users.role_id = role.id
             INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
             INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
@@ -87,7 +87,7 @@ class TeamsListRepository extends Repository
             INNER JOIN users_teams ON users.id = users_teams.users_id 
             INNER JOIN teams ON teams.id = users_teams.teams_id 
             INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN evaluationgrids AS survey ON teams.survey_id = survey.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: garder les équipes visibles même si survey_id est NULL ou temporairement incohérent
             INNER JOIN role ON users.role_id = role.id
             INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
             INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
@@ -131,7 +131,7 @@ class TeamsListRepository extends Repository
             INNER JOIN users_teams ON users.id = users_teams.users_id 
             INNER JOIN teams ON teams.id = users_teams.teams_id 
             INNER JOIN categories ON teams.categories_id = categories.id 
-            INNER JOIN evaluationgrids AS survey ON teams.survey_id = survey.id
+            LEFT JOIN survey ON teams.survey_id = survey.id -- @author Nathan Reyes: garder les équipes visibles même si survey_id est NULL ou temporairement incohérent
             INNER JOIN teams_contact_person ON teams.id = teams_contact_person.teams_id
             INNER JOIN contact_person ON teams_contact_person.contact_person_id = contact_person.id
             WHERE teams.id = :id
