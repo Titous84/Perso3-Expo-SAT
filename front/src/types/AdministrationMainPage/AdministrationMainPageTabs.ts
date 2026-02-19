@@ -75,8 +75,8 @@ export const ADMINISTRATION_MAIN_PAGE_TABS: AdministrationMainPageTab[] = [
     },
     {
         id: "administrateurs",
-        primaryText: "Administrateurs",
-        secondaryText: "Ajouter et supprimer des administrateurs et modifier leur mot de passe",
+        primaryText: "Paramètres généraux",
+        secondaryText: "Administration globale: comptes admins et maintenance annuelle",
         componentToDisplayInContentZone: AdministratorsListPage,
         icon: ManageAccountsIcon,
         iconColor: grey[500]

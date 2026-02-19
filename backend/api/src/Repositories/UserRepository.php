@@ -56,7 +56,7 @@ class UserRepository extends Repository
     {
 		try
 		{
-			$sql = "SELECT users.id, first_name as firstName, last_name as lastName, email, uuid, categories.name AS category, users.blacklisted, users.activated
+			$sql = "SELECT users.id, first_name as firstName, last_name as lastName, email, uuid, categories.name AS category, users.blacklisted, users.activated, judge.present_current_edition as presentCurrentEdition
 			FROM users 
 			INNER JOIN judge ON judge.users_id = users.id
 			INNER JOIN categories ON judge.categories_id = categories.id
@@ -286,7 +286,7 @@ class UserRepository extends Repository
     {
 		try
 		{
-			$sql = "SELECT users.id, first_name as firstName, last_name as lastName, email, uuid, categories.name AS category, blacklisted, activated
+			$sql = "SELECT users.id, first_name as firstName, last_name as lastName, email, uuid, categories.name AS category, blacklisted, activated, judge.present_current_edition as presentCurrentEdition
 			FROM users 
 			INNER JOIN judge ON judge.users_id = users.id
 			INNER JOIN categories ON judge.categories_id = categories.id
@@ -655,14 +655,15 @@ class UserRepository extends Repository
 	 * @param int $category ID de la catégorie du juge.
 	 *@throws PDOException Peut lancer des erreurs PDOException.
 	 */
-	private function update_judge_category(int $userId, int $category)
+	private function update_judge_category(int $userId, int $category, int $presentCurrentEdition = 1)
 	{
-		$sql = "UPDATE judge SET categories_id=:categories_id
+		$sql = "UPDATE judge SET categories_id=:categories_id, present_current_edition=:present_current_edition
 		WHERE users_id=:id";
 		$query = $this->db->prepare($sql);
 		$query->execute(array(
 			":id" => $userId,
 			":categories_id" => $category,
+			":present_current_edition" => $presentCurrentEdition,
 		));
 		return $query->rowCount();
 	}
@@ -691,7 +692,7 @@ class UserRepository extends Repository
 			));
 			$results = $query->rowCount();
 
-        	return $results || $this->update_judge_category($data['judge']['id'], $data['judge']['categoryId']);
+        	return $results || $this->update_judge_category($data['judge']['id'], $data['judge']['categoryId'], $data['judge']['presentCurrentEdition'] ?? 1);
 		}
 		catch(PDOException $e)
 		{
@@ -874,6 +875,33 @@ class UserRepository extends Repository
 			return -1;
 		}
 	}
+
+	/**
+	 * Réinitialise les données annuelles sans supprimer les comptes administrateurs.
+	 * @author Nathan Reyes
+	 */
+	public function reset_annual_data(): bool
+	{
+		try {
+			$this->db->beginTransaction();
+			$this->db->exec("DELETE FROM results");
+			$this->db->exec("DELETE FROM evaluation");
+			$this->db->exec("DELETE FROM users_teams");
+			$this->db->exec("DELETE FROM teams_contact_person");
+			$this->db->exec("DELETE FROM contact_person");
+			$this->db->exec("DELETE FROM teams");
+			$this->db->exec("UPDATE users SET activation_token = NULL WHERE role_id = 3");
+			$this->db->exec("DELETE FROM users WHERE role_id = 3");
+			$this->db->commit();
+			return true;
+		} catch (PDOException $e) {
+			$this->db->rollBack();
+			$context["http_error_code"] = $e->getCode();
+			$this->logHandler->critical($e->getMessage(), $context);
+			return false;
+		}
+	}
+
 	/**
 	 * Cherche les usagers de l'équipe n'ayant pas leur courriel validé.
 	 * @author Mathieu Sévégny
@@ -1007,6 +1035,7 @@ class UserRepository extends Repository
 		
 		return $req->fetchAll();
 	}
+
 
 	/**
 	 * Cherche les usagers de l'équipe n'ayant pas leur courriel validé.

@@ -31,4 +31,5 @@
       * Activé
       */
      activated:boolean;
+     presentCurrentEdition?:boolean;
 }
